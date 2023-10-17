@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Navbar = () => {
   return (
@@ -15,28 +16,32 @@ const Navbar = () => {
         <li className="nav-item">
           <a className="nav-link active" aria-current="page" href="/">Home</a>
         </li>
-        <li className="nav-item">
-          <a className="nav-link" href="/">Link</a>
-        </li>
-        <li className="nav-item dropdown">
-          <a className="nav-link dropdown-toggle" href="/" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Dropdown
-          </a>
-          <ul className="dropdown-menu">
-            <li><a className="dropdown-item" href="/">Action</a></li>
-            <li><a className="dropdown-item" href="/">Another action</a></li>
-            <li><hr className="dropdown-divider"/></li>
-            <li><a className="dropdown-item" href="/">Something else here</a></li>
-          </ul>
+        
+
+
+        <li className="nav-item"> 
+        <Link className="nav-link" to="/business"> business</Link>
         </li>
         <li className="nav-item">
-          <a className="nav-link disabled" aria-disabled="true">Disabled</a>
+           <Link className="nav-link" to="/entertainment"> entertainment</Link>
+           </li>
+        <li className="nav-item">
+           <Link className="nav-link" to="/general"> general</Link>
+           </li>
+        <li className="nav-item">
+           <Link className="nav-link" to="/health">health</Link>
+           </li>
+        <li className="nav-item"> 
+        <Link className="nav-link" to="/science"> science</Link>
         </li>
+        <li className="nav-item"> 
+        <Link className="nav-link" to="/sports"> sports</Link>
+        </li>
+        <li className="nav-item"> 
+        <Link className="nav-link" to="/technology"> technology</Link>
+        </li>      
       </ul>
-      <form className="d-flex" role="search">
-        <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button className="btn btn-outline-success" type="submit">Search</button>
-      </form>
+      
     </div>
   </div>
 </nav>
