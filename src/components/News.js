@@ -1,101 +1,100 @@
-import React, { Component } from 'react';
-import NewsItem from './NewsItem';
-import Spinner from './Spinner';
-import PropTypes from 'prop-types'
+import React, { useCallback, useEffect, useState } from "react";
+import NewsItem from "./NewsItem";
+import Spinner from "./Spinner";
+import PropTypes from "prop-types";
 
-class News extends Component {
+const News = (props) => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
-  static defaultProps= {
-    country: 'in',
-    pageSize: 9,
-    category: 'general'
-  }
+  const updateNews = useCallback(async () => {
+    let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
+    setLoading(true);
 
-  static propTypes = {
-    country: PropTypes.string,
-    pageSize: PropTypes.number,
-    category: PropTypes.string
-  }
-  
-  constructor() {
-    super();
-    this.state = {
-      articles: [],
-      loading: false,
-      page: 1
-    };
-  }
-
-  async componentDidMount() {
-    try {
-      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=61222a34842e492cbf471f626601da78&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-      this.setState({loading: true})
-      let response = await fetch(url);
-      let data = await response.json();
-      console.log(data);
-      this.setState({ articles: data.articles , totalResults: data.totalResults, loading: false});
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }
-
-  handlePrevClick=async ()=> {
-    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=61222a34842e492cbf471f626601da78&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
-    this.setState({loading: true})
     let response = await fetch(url);
     let data = await response.json();
-    console.log(data);
-    this.setState({
-      page: this.state.page-1,
-      articles: data.articles,
-      loading: false
-    })
-  }
+    setArticles(data.articles);
+    setTotalResults(data.totalResults);
+    setLoading(false);
+  }, [page, props.apiKey, props.category, props.country, props.pageSize]);
 
-  handleNextClick = async ()=> {
-    if(!(this.state.page+1 > Math.ceil(this.state.totalResults/this.props.pageSize))){
+  useEffect(() => {
+    updateNews();
+  }, [page, updateNews]); // Trigger the update when the page changes
 
-      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=61222a34842e492cbf471f626601da78&page=${this.state.page +1}&pageSize=${this.props.pageSize}`;
-      this.setState({loading: true})
-      let response = await fetch(url);
-      let data = await response.json();
-      console.log(data);
-      this.setState({
-        page: this.state.page+1,
-        articles: data.articles,
-        loading: false
-      })
+  const handlePrevClick = () => {
+    if (page > 1) {
+      setPage(page - 1);
     }
-  }
+  };
 
-  render() {
+  const handleNextClick = () => {
+    if (page < Math.ceil(totalResults / props.pageSize)) {
+      setPage(page + 1);
+    }
+  };
 
-    return (
-      <div className='container my-3'>
-        <h2 className='text-center' style={{margin:'30px 0'}} >NewsMonkeyss</h2>
-        {this.state.loading && <Spinner/>}
-        <div className='row my-4'>
-          {!this.state.loading && this.state.articles.map((element) => (
-            <div className='col-md-4 my-3' key={element.urlToImage}>
+  return (
+    <div className="container my-3">
+      <h2 className="text-center" style={{ margin: "90px 0" }}>
+        NewsMonkeyss
+      </h2>
+
+      {loading && <Spinner />}
+      <div className="row my-4">
+        {!loading &&
+          articles.map((element) => (
+            <div className="col-md-4 my-3" key={element.urlToImage}>
               <NewsItem
                 title={element.title ? element.title.slice(0, 45) : ""}
-                description={element.description ? element.description.slice(0, 88) : ""}
-                imgUrl={element.urlToImage ? element.urlToImage : "https://www.odisha.plus/wp-content/uploads/2020/06/qtq80-BNRrBq-1536x1034.jpeg"}
+                description={
+                  element.description ? element.description.slice(0, 88) : ""
+                }
+                imgUrl={
+                  element.urlToImage
+                    ? element.urlToImage
+                    : "https://www.odisha.plus/wp-content/uploads/2020/06/qtq80-BNRrBq-1536x1034.jpeg"
+                }
                 newsUrl={element.url}
               />
             </div>
           ))}
-        </div>
-        <div className='container justify-content-between d-flex' >
-          <button disabled={this.state.page<=1} onClick={this.handlePrevClick} type="button" className="btn btn-dark"> &larr; Previous</button>
-          <button disabled={this.state.page+1 > Math.ceil(this.state.totalResults/this.props.pageSize)} type="button" onClick={this.handleNextClick} className="btn btn-dark">Next &rarr; </button>
-
-
-
-        </div>
       </div>
-    );
-  }
-}
+      <div className="container justify-content-between d-flex">
+        <button
+          disabled={page <= 1}
+          onClick={handlePrevClick}
+          type="button"
+          className="btn btn-dark"
+        >
+          {" "}
+          &larr; Previous
+        </button>
+        <button
+          disabled={page >= Math.ceil(totalResults / props.pageSize)}
+          onClick={handleNextClick}
+          type="button"
+          className="btn btn-dark"
+        >
+          Next &rarr;{" "}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+News.defaultProps = {
+  country: "in",
+  pageSize: 9,
+  category: "general",
+};
+
+News.propTypes = {
+  country: PropTypes.string,
+  pageSize: PropTypes.number,
+  category: PropTypes.string,
+};
 
 export default News;
